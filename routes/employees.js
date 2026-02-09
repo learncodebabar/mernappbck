@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const Employee = require("../models/Employee");
-const { verifyToken, isOwner } = require("../middleware/auth");
+//  REMOVE - const { verifyToken, isOwner } = require("../middleware/auth");
 
 // ============================================
-//  Apply token verification to ALL routes
+//  REMOVE - Token verification
 // ============================================
-router.use(verifyToken);
+// router.use(verifyToken);
 
 // ============================================
-// GET all employees - Owner OR Manager
+// GET all employees
 // ============================================
 router.get("/", async (req, res) => {
   try {
@@ -29,9 +29,10 @@ router.get("/", async (req, res) => {
 });
 
 // ============================================
-// CREATE new employee - Owner ONLY
+// CREATE new employee
 // ============================================
-router.post("/", isOwner, async (req, res) => {
+router.post("/", async (req, res) => {
+  //  Remove isOwner
   try {
     const employee = new Employee({
       ...req.body,
@@ -39,8 +40,7 @@ router.post("/", isOwner, async (req, res) => {
 
     const saved = await employee.save();
 
-    //  DEBUG: Check if password was hashed
-    console.log(" Employee created:", {
+    console.log("✅ Employee created:", {
       username: saved.username,
       passwordLength: saved.password.length,
       isHashed: saved.password.startsWith("$2"),
@@ -55,7 +55,7 @@ router.post("/", isOwner, async (req, res) => {
       data: response,
     });
   } catch (err) {
-    console.error("❌ Employee creation error:", err);
+    console.error(" Employee creation error:", err);
     res.status(400).json({
       success: false,
       message: err.message || "Failed to create employee",
@@ -64,9 +64,10 @@ router.post("/", isOwner, async (req, res) => {
 });
 
 // ============================================
-// UPDATE employee - Owner ONLY
+// UPDATE employee
 // ============================================
-router.put("/:id", isOwner, async (req, res) => {
+router.put("/:id", async (req, res) => {
+  //  Remove isOwner
   try {
     const employee = await Employee.findById(req.params.id);
 
@@ -108,7 +109,7 @@ router.put("/:id", isOwner, async (req, res) => {
       data: response,
     });
   } catch (err) {
-    console.error("❌ Employee update error:", err);
+    console.error(" Employee update error:", err);
     res.status(400).json({
       success: false,
       message: err.message || "Failed to update employee",
@@ -117,9 +118,10 @@ router.put("/:id", isOwner, async (req, res) => {
 });
 
 // ============================================
-// DELETE employee - Owner ONLY
+// DELETE employee
 // ============================================
-router.delete("/:id", isOwner, async (req, res) => {
+router.delete("/:id", async (req, res) => {
+  //  Remove isOwner
   try {
     const deleted = await Employee.findByIdAndDelete(req.params.id);
 
@@ -130,14 +132,14 @@ router.delete("/:id", isOwner, async (req, res) => {
       });
     }
 
-    console.log(" Employee deleted:", deleted.username);
+    console.log("✅ Employee deleted:", deleted.username);
 
     res.json({
       success: true,
       message: "Employee deleted successfully",
     });
   } catch (err) {
-    console.error("❌ Delete error:", err);
+    console.error(" Delete error:", err);
     res.status(500).json({
       success: false,
       message: "Server error during deletion",
@@ -146,16 +148,17 @@ router.delete("/:id", isOwner, async (req, res) => {
 });
 
 // ============================================
-// PAY SALARY - Owner OR Manager
+// PAY SALARY
 // ============================================
 router.patch("/:id/pay-salary", async (req, res) => {
   try {
-    if (!req.user.isOwner && req.user.role !== "manager") {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied. Owner or Manager only.",
-      });
-    }
+    //  REMOVE - Role check
+    // if (!req.user.isOwner && req.user.role !== "manager") {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: "Access denied. Owner or Manager only.",
+    //   });
+    // }
 
     const employee = await Employee.findById(req.params.id);
     if (!employee) {
